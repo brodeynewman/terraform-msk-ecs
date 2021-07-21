@@ -37,6 +37,12 @@ resource "aws_ecs_task_definition" "consumer" {
 [
   {
     "cpu": ${var.task_cpu},
+    "secrets": [
+      {
+        "name": "KAFKA_BROKERS",
+        "valueFrom": "arn:aws:secretsmanager:us-east-1:164831777623:secret:test-secrets-649uGj:KAFKA_BROKERS::"
+      }
+    ],
     "environment": [
       {
         "name": "BROKER_LIST",
