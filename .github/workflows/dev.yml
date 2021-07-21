@@ -64,4 +64,4 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
       - name: Update ECS cluster
         run: |
-          aws ecs update-service --cluster forge-core-public --service core --force-new-deployment
+          aws ecs update-service --cluster msk-private --service msk-consumer --force-new-deployment
