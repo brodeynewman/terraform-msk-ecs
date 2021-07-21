@@ -1,14 +1,19 @@
-# First build
-FROM node:14-alpine3.12 AS build
-ARG NPM_TOKEN
-WORKDIR /build
-COPY package*.json ./
+FROM ubuntu:latest
 
-# Final image
-FROM node:14-alpine3.12
-WORKDIR /app
-COPY --from=build /build/node_modules ./node_modules
-COPY ./src ./src
-COPY ./package*.json ./
-USER node
+USER root
+WORKDIR /tmp
+
+RUN apt-get update
+RUN apt-get -y install curl gnupg
+RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash -
+RUN apt-get -y install nodejs
+
+COPY . .
+
+RUN npm install
+
+ENV NODE_ENV production
+
+EXPOSE 3000
+
 CMD ["npm", "start"]

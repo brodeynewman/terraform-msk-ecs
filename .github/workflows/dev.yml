@@ -1,0 +1,74 @@
+name: ECS deployment
+
+on:
+  push:
+    branches: [master] # the branch we want this to run on
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Node setup
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: us-east-1
+
+      - name: Setup Init
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: terraform/dev/
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        working-directory: terraform/dev/
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+        working-directory: terraform/dev/
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve -no-color
+        working-directory: terraform/dev/
+
+      - name: npm install
+        run: npm i
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: msk-consumer
+        run: |
+          npm run build
+
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          aws s3 cp .next/static s3://forge-assets-development/_next/static --recursive
+          aws cloudfront create-invalidation \
+          --distribution-id E2X8D50KQL13VR \
+          --paths /_next
+
+      - name: Update ECS cluster
+        run: |
+          aws ecs update-service --cluster forge-core-public --service core --force-new-deployment
