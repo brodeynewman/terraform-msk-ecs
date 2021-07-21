@@ -46,9 +46,7 @@ async function runConsumer() {
       console.log("Received new message from consumer", {
         topic,
         partition,
-        key: message.key.toString(),
-        value: message.value.toString(),
-        headers: message.headers,
+        message,
       });
     },
   });
