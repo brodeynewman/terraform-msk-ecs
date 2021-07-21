@@ -1,6 +1,10 @@
 # Terraform MSK / ECS example
 
-This example outlines how to provision a highly available MSK cluster with Terraform.
+This example outlines how to provision a highly available MSK (Managed Kafka) cluster with Terraform.
+
+## Why?
+
+Kafka is an amazing tool, but for small to medium-sized teams, It's not realistic to manage a home-baked solution. This would involve countless hours of managing brokers on EC2, zookeeper clusters, and complex issues like multi-az clustering + failover. MSK takes care of this for you.
 
 ## Resources deployed
 
@@ -18,3 +22,7 @@ This example outlines how to provision a highly available MSK cluster with Terra
    - NodeJS image running KafkaJS consumer + producer code
    - ECS service + ECR repo setup
    - Security groups
+
+## Architecture
+
+todo
