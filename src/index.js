@@ -16,6 +16,8 @@ const kafka = new Kafka({
   },
 });
 
+let inc = 0;
+
 async function runProducer() {
   const producer = kafka.producer();
 
@@ -28,7 +30,7 @@ async function runProducer() {
 
     await producer.send({
       topic: "test-topic",
-      messages: [{ value: "Testing" }],
+      messages: [{ value: "Testing", num: inc++ }],
     });
   }, 2000);
 }
@@ -46,7 +48,7 @@ async function runConsumer() {
       console.log("Received new message from consumer", {
         topic,
         partition,
-        message,
+        message: message.value.toString(),
       });
     },
   });
