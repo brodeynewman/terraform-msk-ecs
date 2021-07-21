@@ -52,6 +52,15 @@ module "vpc" {
   availability_zones = ["us-east-1a", "us-east-1b"]
 }
 
+module "bastion_host" {
+  source     = "../modules/bastion"
+
+  vpc_id           = module.vpc.vpc_id
+  public_subnet_id = module.vpc.public_subnet_az1_id
+
+  depends_on       = [module.vpc]
+}
+
 module "ecs" {
   source     = "../modules/ecs-consumer"
 
@@ -68,6 +77,7 @@ module "msk" {
   vpc_id                      = module.vpc.vpc_id
   private_subnet_list         = module.vpc.private_subnet_list
   container_security_group_id = module.ecs.container_security_group_id
+  bastion_security_group_id   = module.bastion_host.bastion_security_group_id
 
-  depends_on                  = [module.vpc]
+  depends_on                  = [module.vpc, module.ecs, module.bastion_host]
 }

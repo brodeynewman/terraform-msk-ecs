@@ -8,18 +8,17 @@ resource "aws_security_group" "msk" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "all"
+    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [var.bastion_security_group_id, var.container_security_group_id]
+  }
+
   tags = {
     name = "MSK cluster security group"
   }
-}
-
-resource "aws_security_group_rule" "allow_all" {
-  type                     = "ingress"
-  to_port                  = 0
-  from_port                = 0
-  protocol                 = "all"
-  security_group_id        = aws_security_group.msk.id
-  source_security_group_id = var.container_security_group_id
 }
 
 resource "aws_cloudwatch_log_group" "msk" {
