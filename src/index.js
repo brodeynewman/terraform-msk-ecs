@@ -37,7 +37,7 @@ async function runConsumer() {
   const consumer = kafka.consumer({ groupId: "my-group" });
 
   await consumer.connect();
-  await consumer.subscribe({ topic: "topic-A" });
+  await consumer.subscribe({ topic: "test-topic" });
 
   console.log("Kafka consumer is connected!");
 
