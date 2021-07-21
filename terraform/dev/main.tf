@@ -48,7 +48,7 @@ terraform {
 module "vpc" {
   source             = "../modules/vpc"
 
-  region             = "us-east-1"
+  region              = "us-east-1"
   availability_zones = ["us-east-1a", "us-east-1b"]
 }
 
@@ -56,6 +56,15 @@ module "ecs" {
   source     = "../modules/ecs-consumer"
 
   region              = "us-east-1"
+  vpc_id              = module.vpc.vpc_id
+  private_subnet_list = module.vpc.private_subnet_list
+
+  depends_on          = [module.vpc]
+}
+
+module "msk" {
+  source     = "../modules/msk"
+
   vpc_id              = module.vpc.vpc_id
   private_subnet_list = module.vpc.private_subnet_list
 

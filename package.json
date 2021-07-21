@@ -1,0 +1,20 @@
+{
+  "name": "msk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brodeynewman/terraform-msk-ecs.git"
+  },
+  "author": "Brodey Newman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brodeynewman/terraform-msk-ecs/issues"
+  },
+  "homepage": "https://github.com/brodeynewman/terraform-msk-ecs#readme",
+  "dependencies": {
+    "kafkajs": "^1.15.0"
+  }
+}
