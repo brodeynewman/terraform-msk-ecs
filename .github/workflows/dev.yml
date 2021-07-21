@@ -59,16 +59,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: msk-consumer
         run: |
-          npm run build
-
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-          aws s3 cp .next/static s3://forge-assets-development/_next/static --recursive
-          aws cloudfront create-invalidation \
-          --distribution-id E2X8D50KQL13VR \
-          --paths /_next
-
       - name: Update ECS cluster
         run: |
           aws ecs update-service --cluster forge-core-public --service core --force-new-deployment
