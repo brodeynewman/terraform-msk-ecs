@@ -4,7 +4,7 @@ data "aws_iam_role" "ecr" {
 
 module "label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=master"
-  namespace  = "msk-consumer"
+  namespace  = "msk"
   attributes = ["private"]
   delimiter  = "-"
 }
