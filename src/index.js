@@ -10,6 +10,9 @@ console.log("Broker list:", brokers);
 const kafka = new Kafka({
   clientId: "msk",
   brokers,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 const producer = kafka.producer();

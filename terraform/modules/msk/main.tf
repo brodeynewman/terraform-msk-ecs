@@ -1,5 +1,25 @@
 resource "aws_security_group" "msk" {
   vpc_id = var.vpc_id
+
+  ingress {
+    from_port = -1
+    to_port = -1
+    protocol = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    name = "MSK cluster security group"
+  }
+}
+
+resource "aws_security_group_rule" "allow_all" {
+  type                     = "ingress"
+  to_port                  = 0
+  from_port                = 0
+  protocol                 = "all"
+  security_group_id        = aws_security_group.msk.id
+  source_security_group_id = var.container_security_group_id
 }
 
 resource "aws_cloudwatch_log_group" "msk" {

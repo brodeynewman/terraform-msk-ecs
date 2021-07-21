@@ -7,3 +7,8 @@ variable vpc_id {
   type        = string
   description = "VPC identifier"
 }
+
+variable container_security_group_id {
+  type        = string
+  description = "Container security group ID"
+}
