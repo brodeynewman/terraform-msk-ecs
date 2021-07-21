@@ -19,14 +19,14 @@ async function run() {
 
   console.log("Kafka is connected!");
 
-  setInterval(() => {
-    console.log('Pinging kafka...');
+  setInterval(async () => {
+    console.log("Pinging kafka...");
 
     await producer.send({
       topic: "test-topic",
       messages: [{ value: "Testing" }],
     });
-  }, 2000)
+  }, 2000);
 }
 
 run().then(() => {
