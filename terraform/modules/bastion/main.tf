@@ -1,5 +1,6 @@
 data "aws_ami" "bastion" {
   most_recent = true
+  owners      = ["amazon"]
 
   filter {
     name   = "owner-alias"
@@ -8,21 +9,17 @@ data "aws_ami" "bastion" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-*-amazon-ecs*"]
+    values = ["amzn2-ami-hvm-2.0.????????-x86_64-gp2"]
   }
 
-  owners = ["amazon"]
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
 }
 
 resource "aws_security_group" "bastion" {
   vpc_id = var.vpc_id
-
-  ingress {
-    from_port = 0
-    to_port = 22
-    protocol = "all"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port = 0
@@ -46,25 +43,15 @@ data "template_file" "user_data" {
   }
 }
 
-module "key_pair" {
-  source = "terraform-aws-modules/key-pair/aws"
-
-  key_name   = "deployer-one"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCy64BJCXd3q/QroEDUTIGVN1zCz/7vcGKG2kIVgUq1FSBAJwa9ouQ8dpw+YGpzX6NqWdk9QEWIlMNJOke2fRgTjo+qXQZkN9Cv/ZgKMtaayZ9TbSeCFPqRtfQLQ75ZnrsKCmvwKssO+pYeXUrsF3RHqc+r4kNprlSQ0c3IHVozkJQrmwFvaUA6LORUuCwkKj6xMVZRpDfQeeGyvx2HW+zorqKI5GU6GhvoNL/oyjx46ZqBwD/2cQsD9V5POtmVaUeAIBuGch5Zy4B8y0vO3e14/ZpyxyJvUsnKpsShC+pFWdtFf0cyfsCN3nscbYdsqSPArxDabf6y34V3RD/aj7/wH7yA6+tPs0zhZZdmQY4cJPWvpuupOi9wWpgwFlngsIJtT5t2t4G5ucUoocyXD3O4J2zfjJvRSRj5hWQRrUihp7ZQx2ypAdhUuGKFpcGtSYekjaawYaxGkJcWpgDBa1pxkkbLx2vjgKNflm7lfNE35ZMDetH1sUzkn83TmKiKqA8= brodeynewman@gmail.com"
-}
-
 resource "aws_instance" "bastion" {
-    ami                         = data.aws_ami.bastion.id
-    instance_type               = "t2.micro"
-    iam_instance_profile        = aws_iam_instance_profile.default.name
-    key_name                    = module.key_pair.key_pair_key_name
-    vpc_security_group_ids      = [aws_security_group.bastion.id]
-    user_data                   = data.template_file.user_data.rendered 
-    subnet_id                   = var.public_subnet_id
-    source_dest_check           = false
-    associate_public_ip_address = true
+  ami                         = data.aws_ami.bastion.id
+  instance_type               = "t2.micro"
+  iam_instance_profile        = aws_iam_instance_profile.default.name
+  vpc_security_group_ids      = [aws_security_group.bastion.id]
+  user_data                   = data.template_file.user_data.rendered
+  subnet_id                   = var.public_subnet_id
 
-    tags = {
-      name = "Bastion host"
-    }
+  tags = {
+    name = "Bastion host"
+  }
 }

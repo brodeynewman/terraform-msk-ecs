@@ -1,97 +1,43 @@
 resource "aws_iam_instance_profile" "default" {
-  name  = "bastion_profile"
+  name = local.iam_name
+  role = aws_iam_role.default.name
+  path = "/"
 }
 
 resource "aws_iam_role" "default" {
-  name  = "bastion"
-  path  = "/"
-
-  assume_role_policy = data.aws_iam_policy_document.default.json
+  name               = local.iam_name
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+  path               = "/"
+  description        = "MSK bastion ssm role"
 }
 
-resource "aws_iam_role_policy" "main" {
-  name   = "bastion_policy"
-  role   = aws_iam_role.default.id
-  policy = data.aws_iam_policy_document.main.json
-}
-
-data "aws_iam_policy_document" "default" {
+data "aws_iam_policy_document" "assume_role_policy" {
   statement {
-    sid = ""
-
-    actions = [
-      "sts:AssumeRole",
-    ]
+    actions = ["sts:AssumeRole"]
 
     principals {
       type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
-
-    effect = "Allow"
   }
 }
 
-data "aws_iam_policy_document" "main" {
-  statement {
-    effect = "Allow"
+resource "aws_iam_policy" "default" {
+  name        = local.iam_name
+  policy      = data.aws_iam_policy.default.policy
+  path        = "/"
+  description = "SSM iam policy"
+}
 
-    actions = [
-      "ssm:DescribeAssociation",
-      "ssm:GetDeployablePatchSnapshotForInstance",
-      "ssm:GetDocument",
-      "ssm:DescribeDocument",
-      "ssm:GetManifest",
-      "ssm:GetParameter",
-      "ssm:GetParameters",
-      "ssm:ListAssociations",
-      "ssm:ListInstanceAssociations",
-      "ssm:PutInventory",
-      "ssm:PutComplianceItems",
-      "ssm:PutConfigurePackageResult",
-      "ssm:UpdateAssociationStatus",
-      "ssm:UpdateInstanceAssociationStatus",
-      "ssm:UpdateInstanceInformation"
-    ]
+resource "aws_iam_role_policy_attachment" "default" {
+  role       = aws_iam_role.default.name
+  policy_arn = aws_iam_policy.default.arn
+}
 
-    resources = ["*"]
-  }
+locals {
+  iam_name = "msk-bastion-session-manager"
+}
 
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ssmmessages:CreateControlChannel",
-      "ssmmessages:CreateDataChannel",
-      "ssmmessages:OpenControlChannel",
-      "ssmmessages:OpenDataChannel"
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ec2messages:AcknowledgeMessage",
-      "ec2messages:DeleteMessage",
-      "ec2messages:FailMessage",
-      "ec2messages:GetEndpoint",
-      "ec2messages:GetMessages",
-      "ec2messages:SendReply"
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:GetEncryptionConfiguration"
-    ]
-
-    resources = ["*"]
-  }
+data "aws_iam_policy" "default" {
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
